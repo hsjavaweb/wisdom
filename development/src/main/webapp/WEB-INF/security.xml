@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<b:beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns:b="http://www.springframework.org/schema/beans"
+         xmlns="http://www.springframework.org/schema/security"
+         xsi:schemaLocation="http://www.springframework.org/schema/beans
+         http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+              http://www.springframework.org/schema/security
+              http://www.springframework.org/schema/security/spring-security-4.0.xsd">
+    <!--<global-method-security pre-post-annotations="enabled"/>-->
+
+
+    <!--&lt;!&ndash; entry-point-ref 配置自定义登录 &ndash;&gt;-->
+    <!--<http disable-url-rewriting="false"  entry-point-ref="authenticationProcessingFilterEntryPoint">-->
+        <!--<headers disabled="true"/>-->
+        <!--&lt;!&ndash; 登出配置 &ndash;&gt;-->
+        <!--<logout logout-url="/j_spring_security_logout" logout-success-url="/../index.html" invalidate-session="true" />-->
+        <!--<access-denied-handler error-page="/../index.html" />-->
+        <!--<csrf disabled="true"></csrf>-->
+        <!--<intercept-url pattern="/api/system/getCurrentUser" access="permitAll()"/>-->
+        <!--&lt;!&ndash; 只有权限才能访问的请求 &ndash;&gt;-->
+        <!--<intercept-url pattern="/api/**" access="hasRole('ROLE_OPERATOR')"/>-->
+
+        <!--<custom-filter ref="defaultAuthenticationFilter" position="FORM_LOGIN_FILTER" />-->
+    <!--</http>-->
+
+    <!--<b:bean id="authenticationProcessingFilterEntryPoint"-->
+                <!--class="org.springframework.security.web.authentication.Http403ForbiddenEntryPoint">-->
+    <!--</b:bean>-->
+
+
+
+    <!--<b:bean class="com.wisdom.framework.core.security.DefaultAuthenticationFilter" id="defaultAuthenticationFilter">-->
+        <!--<b:property name="authenticationSuccessHandler" ref="loginLogAuthenticationSuccessHandler"/>-->
+        <!--<b:property name="authenticationFailureHandler" ref="simpleUrlAuthenticationFailureHandler"/>-->
+        <!--<b:property name="postOnly" value="false"/>-->
+        <!--<b:property name="authenticationManager" ref="authenticationManager"/>-->
+        <!--<b:property name="filterProcessesUrl" value="/j_spring_security_check"/>-->
+    <!--</b:bean>-->
+    <!--&lt;!&ndash; 启用表达式 为了后面的投票器做准备 &ndash;&gt;-->
+    <!--<b:bean class="org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler"-->
+            <!--id="expressionHandler"/>-->
+    <!--<b:bean class="org.springframework.security.web.access.expression.WebExpressionVoter" id="expressionVoter">-->
+        <!--<b:property name="expressionHandler" ref="expressionHandler"/>-->
+    <!--</b:bean>-->
+    <!--<b:bean id="loginLogAuthenticationSuccessHandler" class="com.wisdom.framework.core.security.AuthenticationSuccessHandler">-->
+        <!--<b:property name="defaultTargetUrl" value="/../index.html#/app/dashboard"/>-->
+    <!--</b:bean>-->
+
+    <!--<b:bean id="simpleUrlAuthenticationFailureHandler"-->
+            <!--class="com.wisdom.framework.core.security.AuthenticationFailureHandler">-->
+        <!--<b:property name="defaultFailureUrl" value="/../login.html"/>-->
+    <!--</b:bean>-->
+    <!--<b:bean id="sessionRegistry" class="org.springframework.security.core.session.SessionRegistryImpl"/>-->
+    <!--&lt;!&ndash;<b:bean id="sessionRegistry" class="RedisSessionRegistryImpl"/>&ndash;&gt;-->
+
+
+
+    <!--<b:bean id="myChannelAuthenticationProvider"-->
+            <!--class="com.wisdom.framework.core.security.OtherDaoAuthenticationProvider">-->
+        <!--<b:property name="userDetailsService" ref="merchantsUsersService"/>-->
+        <!--<b:property name="hideUserNotFoundExceptions" value="false"/>-->
+    <!--</b:bean>-->
+    <!--<authentication-manager erase-credentials="false" alias="authenticationManager">-->
+        <!--<authentication-provider ref="myChannelAuthenticationProvider"/>-->
+    <!--</authentication-manager>-->
+</b:beans>

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:rabbit="http://www.springframework.org/schema/rabbit"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+    http://www.springframework.org/schema/rabbit
+    http://www.springframework.org/schema/rabbit/spring-rabbit-1.0.xsd">
+
+    <description>rabbitmq 连接服务配置</description>
+    <!-- 连接配置 -->
+    <rabbit:connection-factory id="connectionFactory" host="\${mq_host}" username="\${mq_username}"
+                               password="\${mq_password}" port="\${mq_port}" virtual-host="\${mq_vhost}"/>
+    <rabbit:admin connection-factory="connectionFactory"/>
+
+    <!-- spring template声明-->
+    <rabbit:template exchange="payment-mq-exchange" id="amqpTemplate" connection-factory="connectionFactory"
+                     message-converter="jsonMessageConverter"/>
+
+    <!-- 消息对象json转换类 -->
+    <bean id="jsonMessageConverter" class="com.wisdom.modules.common.mq.StringMessageConverter"/>
+
+
+    <rabbit:direct-exchange name="payment-mq-exchange" durable="true" auto-delete="false" id="payment-mq-exchange">
+        <rabbit:bindings>
+            <rabbit:binding queue="real_time_queue" key="real_time_queue"/>
+            <!--单线程队列-->
+            <rabbit:binding queue="single_syn_queue" key="single_syn_queue"/>
+            <rabbit:binding queue="single_syn_queue2" key="single_syn_queue2"/>
+#foreach(foo in ["3s","5s","10s","30s","60s","3m","15m","30m","1h","1.5h","2h"])
+            <rabbit:binding queue="delay_${foo}_queue"  key="delay_${foo}_queue"/>
+#end
+        </rabbit:bindings>
+    </rabbit:direct-exchange>
+
+
+    <rabbit:queue id="real_time_queue" name="real_time_queue" durable="true" auto-delete="false" exclusive="false"/>
+    <rabbit:queue id="single_syn_queue" name="single_syn_queue" durable="true" auto-delete="false" exclusive="false"/>
+    <rabbit:queue id="single_syn_queue2" name="single_syn_queue2" durable="true" auto-delete="false" exclusive="false"/>
+#foreach(foo in ["3s","5s","10s","30s","60s","3m","15m","30m","1h","1.5h","2h"])
+    <rabbit:queue name="delay_${foo}_queue" durable="true" auto-delete="false" exclusive="false">
+        <rabbit:queue-arguments>
+            <entry key="x-dead-letter-exchange" value="payment-mq-exchange"/>
+            <entry key="x-dead-letter-routing-key" value="real_time_queue"/>
+        </rabbit:queue-arguments>
+    </rabbit:queue>
+#end
+
+
+
+
+    <bean id="queueListenter" class="com.wisdom.modules.common.mq.QueueListenter">
+        <property name="messageConverter" ref="jsonMessageConverter"/>
+        <property name="msgHandlers">
+            <map value-type="com.wisdom.modules.common.mq.handler.MQHandler" key-type="java.lang.String">
+                <entry key="real_time_queue" value-ref="realTimeMQHandler"/>
+                <entry key="single_syn_queue" value-ref="synSingleQueueMQHandler"/>
+                <entry key="single_syn_queue2" value-ref="synSingleQueueMQHandler"/>
+            </map>
+        </property>
+    </bean>
+
+    <bean id="mqProducer" class="com.wisdom.modules.common.mq.MQProducerImpl"/>
+
+    <bean id="accountingMQHandler"  class="com.wisdom.modules.common.mq.handler.AccountingHandler"/>
+    <bean id="notifyMQHandler" class="com.wisdom.modules.common.mq.handler.NotifyHandler"/>
+    <bean id="selectMQHandler" class="com.wisdom.modules.common.mq.handler.SelectPayHandler"/>
+    <bean id="selectRemitMQHandler" class="com.wisdom.modules.common.mq.handler.SelectRemitHandler"/>
+    <bean id="emailMQHandler" class="com.wisdom.modules.common.mq.handler.EmailHandler"/>
+    <bean id="payoutMQHandler" class="com.wisdom.modules.common.mq.handler.PayoutHandler"/>
+    <bean id="payoutOrderStatusMQHandler" class="com.wisdom.modules.common.mq.handler.PayoutOrderStatusHandler"/>
+    <bean id="setOrderFailedMqhandler" class="com.wisdom.modules.common.mq.handler.PayOrderFailedHandler"/>
+    <bean id="payOrderSuccessMQHandler" class="com.wisdom.modules.common.mq.handler.PayOrderSuccessHandler"/>
+    <bean id="synSingleQueueMQHandler" class="com.wisdom.modules.common.mq.handler.SynSingleQueueHandler">
+        <property name="msgHandlers">
+            <map value-type="com.wisdom.modules.common.mq.handler.MQHandler" key-type="java.lang.String">
+                <entry key="accounting_queue" value-ref="accountingMQHandler"/>
+                <entry key="payout_queue" value-ref="payoutMQHandler"/>
+                <entry key="payout_order_status_queue" value-ref="payoutOrderStatusMQHandler"/>
+                <entry key="set_order_failed_queue" value-ref="setOrderFailedMqhandler"/>
+                <entry key="pay_order_success_queue" value-ref="payOrderSuccessMQHandler"/>
+            </map>
+        </property>
+    </bean>
+    <bean id="realTimeMQHandler"  class="com.wisdom.modules.common.mq.handler.RealTimeQueueHandler">
+        <property name="msgHandlers">
+            <map value-type="com.wisdom.modules.common.mq.handler.MQHandler" key-type="java.lang.String">
+                <entry key="email_queue" value-ref="emailMQHandler"/>
+                <entry key="notify_queue" value-ref="notifyMQHandler"/>
+                <entry key="select_queue" value-ref="selectMQHandler"/>
+                <entry key="select_remit_queue" value-ref="selectRemitMQHandler"/>
+            </map>
+        </property>
+    </bean>
+
+    #if(host=='localhost' || SEQ_MACHINE_NO=='2')
+    <rabbit:listener-container id="ac_mq" connection-factory="connectionFactory" concurrency="1" auto-startup="false" acknowledge="manual">
+        <rabbit:listener queues="single_syn_queue" ref="queueListenter"/>
+        <rabbit:listener queues="single_syn_queue2" ref="queueListenter"/>
+    </rabbit:listener-container>
+#end
+#if(host=='localhost' || SEQ_MACHINE_NO!='2')
+    <rabbit:listener-container id="default_mq" concurrency="5" connection-factory="connectionFactory" auto-startup="false" acknowledge="manual">
+        <rabbit:listener queues="real_time_queue" ref="queueListenter"/>
+    </rabbit:listener-container>
+#end
+</beans>

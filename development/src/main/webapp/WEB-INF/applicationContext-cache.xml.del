@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-4.0.xsd"
+       default-lazy-init="false">
+
+    <bean id="redisHttpSessionConfiguration"
+          class="org.springframework.session.data.redis.config.annotation.web.http.RedisHttpSessionConfiguration">
+        <property name="maxInactiveIntervalInSeconds" value="600"/>
+    </bean>
+
+    <bean  class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory">
+        <property name="hostName" value="\${redisHost}" />
+        <property name="port" value="\${redisPort}" />
+        <property name="password" value="\${redisPass}" />
+    </bean>
+    <bean id="redissonConfig" class="org.redisson.config.Config" factory-method="fromJSON">
+        <constructor-arg name="content" value="\${redissonConfigFromJSON}"/>
+        <property name="codec" ref="jsonCodec"/>
+    </bean>
+
+    <bean id="jsonCodec" class="JsonCodec"/>
+
+    <bean id="redissonClient" class="org.redisson.Redisson" factory-method="create">
+        <constructor-arg name="config" ref="redissonConfig"/>
+    </bean>
+
+</beans>
