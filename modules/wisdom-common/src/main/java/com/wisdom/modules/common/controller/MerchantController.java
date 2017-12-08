@@ -36,14 +36,14 @@ public class MerchantController extends BaseController {
         try {
             LoginUser currentUser = LoginUser.getCurrentUser();
             Map data = pagerRequest.getData();
-            if(currentUser.getAdmType()!=3){
+            if (currentUser.getAdmType() != 3) {
                 data.put("mercId", currentUser.getMercId());
             }
-            if(data!=null&&data.containsKey("mercName")){
-                data.put("mercName","%"+data.get("mercName")+"%");
+            if (data != null && data.containsKey("mercName")) {
+                data.put("mercName", "%" + data.get("mercName") + "%");
             }
-            if(data!=null&&data.containsKey("mercName")){
-                data.put("legalName","%"+data.get("legalName")+"%");
+            if (data != null && data.containsKey("mercName")) {
+                data.put("legalName", "%" + data.get("legalName") + "%");
             }
             Pager pager = merchantService.listPager(pagerRequest.getStartPage(), pagerRequest.getPageLength(), data);
             responseData.setData(pager);
