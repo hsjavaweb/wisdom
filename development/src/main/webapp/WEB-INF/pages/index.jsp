@@ -4,6 +4,9 @@
     <title>Title</title>
 </head>
 <body>
-<%="hello"%>
+<form action="${pageContext.request.contextPath}/user/find?id=4" method="post">
+
+    <input type="submit" value="登录">
+</form>
 </body>
 </html>

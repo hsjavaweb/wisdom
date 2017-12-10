@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wisdom.modules.user.persistence.UserMapper">
+
+    <resultMap id="user" type="User">
+        <id property="id" column="id"/>
+        <result property="username" column="username"/>
+        <result property="password" column="password"/>
+        <result property="gender" column="gender"/>
+        <result property="email" column="email"/>
+        <result property="telephone" column="telephone"/>
+        <result property="introduce" column="introduce"/>
+        <result property="activeCode" column="activeCode"/>
+        <result property="role" column="role"/>
+        <result property="state" column="state"/>
+        <result property="registTime" column="registTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
+    </resultMap>
+
+    <select id="findById" parameterType="int" resultMap="user">
+        SELECT id,username,password,gender,email,telephone,introduce,activeCode,role,state,registTime FROM USER WHERE id=#{id}
+    </select>
+
+</mapper>

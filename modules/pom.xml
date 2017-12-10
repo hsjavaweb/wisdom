@@ -13,6 +13,7 @@
 	<packaging>pom</packaging>
 <modules>
     <module>wisdom-common</module>
+    <module>wisdom-user</module>
 </modules>
     <dependencies>
         <!-- commons -->

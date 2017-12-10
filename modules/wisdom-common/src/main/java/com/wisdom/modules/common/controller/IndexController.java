@@ -14,7 +14,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class IndexController extends BaseController {
 
     @RequestMapping(value = "/index")
-    public String index() {
+    public String index(int id) {
+
+
+
         return "index";
     }
 

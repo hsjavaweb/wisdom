@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wisdom.modules.common.persistence.MerchantMapper">
+
+    <resultMap id="merchant" type="Merchant">
+        <id property="id" column="id"/>
+        <result property="mercId" column="mercId"/>
+        <result property="mercName" column="mercName"/>
+        <result property="mercKey" column="mercKey"/>
+        <result property="mercSafeKey" column="mercSafeKey"/>
+        <result property="payRate" column="payRate"/>
+        <result property="payRate2" column="payRate2"/>
+        <result property="cashRate" column="cashRate"/>
+        <result property="refundRate" column="refundRate"/>
+        <result property="chargeBackRate" column="chargeBackRate"/>
+        <result property="isRefundAllow" column="isRefundAllow"/>
+        <result property="remitRate" column="remitRate"/>
+        <result property="legalName" column="legalName"/>
+        <result property="phone" column="phone"/>
+        <result property="mobile" column="mobile"/>
+        <result property="amount" column="amount"/>
+        <result property="proxyAmount" column="proxyAmount"/>
+        <result property="frozenCashAmount" column="frozenCashAmount"/>
+        <result property="frozenProxyAmount" column="frozenProxyAmount"/>
+        <result property="txAmount" column="txAmount"/>
+        <result property="remitAmount" column="remitAmount"/>
+        <result property="mercNotifyCnt" column="mercNotifyCnt"/>
+        <result property="bnkNotifyCnt" column="bnkNotifyCnt"/>
+        <result property="shopUrl" column="shopUrl"/>
+        <result property="proxyServerIp" column="proxyServerIp"/>
+        <result property="host" column="host"/>
+        <result property="ipLimit" column="ipLimit"/>
+        <result property="delFlag" column="delFlag"/>
+        <result property="createTime" column="createTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
+        <result property="lastUpdateTime" column="lastUpdateTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
+        <result property="versionNo" column="versionNo"/>
+    </resultMap>
+    <resultMap id="merchantKey" type="Merchant">
+        <result property="mercId" column="mercId"/>
+        <result property="mercName" column="mercName"/>
+        <result property="mercKey" column="mercKey"/>
+        <result property="mercSafeKey" column="mercSafeKey"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id,
+        merc_id as mercId,
+        merc_name as mercName,
+        pay_rate as payRate,
+        pay_rate2 as payRate2,
+        refund_rate as refundRate ,<!-- 费率 -->
+        charge_back_rate as chargeBackRate ,<!-- 费率 -->
+        is_refund_allow as isRefundAllow ,<!-- 费率 -->
+        cash_rate as cashRate,
+        remit_rate as remitRate,
+        legal_name as legalName,
+        phone as phone,
+        mobile as mobile,
+        amount as amount,
+        proxy_amount as proxyAmount,
+        frozen_cash_amount as frozenCashAmount,
+        frozen_proxy_amount as frozenProxyAmount,
+        tx_amount as txAmount,
+        remit_amount as remitAmount,
+        merc_notify_cnt as mercNotifyCnt,
+        bnk_notify_cnt as bnkNotifyCnt,
+        shop_url as shopUrl,
+        proxy_server_ip as proxyServerIp,
+        ip_limit as ipLimit,
+        host as host,
+        del_flag as delFlag,
+        create_time as createTime,
+        last_update_time as lastUpdateTime,
+        version_no as versionNo
+    </sql>
+    <sql id="key_Column_List">
+        id,
+        merc_id as mercId,
+        merc_name as mercName,
+        merc_key as mercKey,
+        merc_safe_key as mercSafeKey
+    </sql>
+
+    <select id="list" parameterType="java.util.Map" resultMap="merchant">
+        select
+        <include refid="Base_Column_List"/>
+        from Merchant merchant
+        <where>
+            <if test="mercId != null">
+                and merchant.merc_id = #{mercId}
+            </if>
+            <if test="mercName != null">
+                and merchant.merc_name LIKE #{mercName}
+            </if>
+            <if test="cashRate != null">
+                and merchant.cash_rate = #{cashRate}
+            </if>
+            <if test="legalName != null">
+                and merchant.legal_name = #{legalName}
+            </if>
+            <if test="phone != null">
+                and merchant.phone = #{phone}
+            </if>
+            <if test="mobile != null">
+                and merchant.mobile = #{mobile}
+            </if>
+            <if test="amount != null">
+                and merchant.amount = #{amount}
+            </if>
+            and merchant.del_flag = 0
+        </where>
+    </select>
+
+    <select id="getByUniqueKey" parameterType="string" resultMap="merchant">
+        select
+        <include refid="Base_Column_List"/>
+        from Merchant
+        where merc_id=#{param1} and del_flag = 0
+    </select>
+
+    <select id="getMerchantWholeInfo" parameterType="string" resultMap="merchant">
+        select
+        merc_key as mercKey,
+        merc_safe_key as mercSafeKey,
+        <include refid="Base_Column_List"/>
+        from Merchant
+        where merc_id=#{mercId} and del_flag = 0
+    </select>
+
+    <select id="getMerchantKey" resultMap="merchantKey">
+        select
+        <include refid="key_Column_List"/>
+        from Merchant
+        where merc_id=#{mercId} and merc_safe_key=#{mercSafeKey} and del_flag = 0 limit 1
+    </select>
+
+    <update id="update" parameterType="Merchant">
+        update Merchant
+        <set>
+            <if test="mercName != null">
+                merc_name = #{mercName,jdbcType=VARCHAR},
+            </if>
+            <if test="remitRate != null">
+                remit_rate = #{remitRate,jdbcType=VARCHAR},
+            </if>
+            <if test="cashRate != null">
+                cash_rate = #{cashRate,jdbcType=VARCHAR},
+            </if>
+            <if test="payRate != null">
+                pay_rate = #{payRate,jdbcType=VARCHAR},
+            </if>
+            <if test="payRate2 != null">
+                pay_rate2 = #{payRate2,jdbcType=VARCHAR},
+            </if>
+            <if test="refundRate != null"><!-- 权重 条件判断 -->
+                refund_rate = #{refundRate} ,<!-- 权重 -->
+            </if>
+            <if test="chargeBackRate != null"><!-- 权重 条件判断 -->
+                charge_back_rate = #{chargeBackRate} ,<!-- 权重 -->
+            </if>
+            <if test="isRefundAllow != null"><!-- 权重 条件判断 -->
+                is_refund_allow = #{isRefundAllow} ,<!-- 权重 -->
+            </if>
+            <if test="legalName != null">
+                legal_name = #{legalName,jdbcType=VARCHAR},
+            </if>
+            <if test="phone != null">
+                phone = #{phone,jdbcType=VARCHAR},
+            </if>
+            <if test="mobile != null">
+                mobile = #{mobile,jdbcType=VARCHAR},
+            </if>
+            <if test="mercNotifyCnt != null">
+                merc_notify_cnt= #{mercNotifyCnt},
+            </if>
+            <if test="bnkNotifyCnt != null">
+                bnk_notify_cnt= #{bnkNotifyCnt},
+            </if>
+            <if test="shopUrl != null">
+                shop_url= #{shopUrl},
+            </if>
+            <if test="ipLimit != null">
+                ip_limit= #{ipLimit},
+            </if>
+            <if test="host != null">
+                host= #{host},
+            </if>
+            <if test="proxyServerIp != null">
+                proxy_server_ip= #{proxyServerIp},
+            </if>
+            <if test="delFlag != null">
+                del_flag= #{delFlag},
+            </if>
+            <if test="mercKey != null">
+                merc_key = #{mercKey,jdbcType=VARCHAR},
+            </if>
+            <if test="mercSafeKey != null">
+                merc_safe_key = #{mercSafeKey,jdbcType=VARCHAR},
+            </if>
+            last_update_time = now(),
+            version_no = version_no+1
+        </set>
+        where merc_id = #{mercId}
+    </update>
+
+    <insert id="insert" parameterType="Merchant">
+        insert into Merchant
+        (merc_id,merc_name,merc_key,merc_safe_key,remit_rate,pay_rate,pay_rate2,refund_rate,charge_back_rate,cash_rate, legal_name, phone, mobile,amount,proxy_amount,frozen_cash_amount,frozen_proxy_amount,tx_amount,remit_amount,merc_notify_cnt,bnk_notify_cnt,shop_url,ip_limit,host,proxy_server_ip,del_flag, create_time, last_update_time,is_refund_allow,version_no)
+        values
+        (#{mercId}, #{mercName},#{mercKey},#{mercSafeKey},#{remitRate},#{payRate},#{payRate2},#{refundRate},#{chargeBackRate},#{cashRate},
+        #{legalName},#{phone}, #{mobile}, 0,0, 0,0,0,0,0,0,#{shopUrl},#{ipLimit},#{host},#{proxyServerIp},0,now(),now(),#{isRefundAllow},0
+        )
+    </insert>
+
+    <!-- 物理删除：逻辑删除 -->
+    <delete id="batchRemove" parameterType="List">
+        update  Merchant set del_flag=1
+        <where>
+            merc_id IN
+            <foreach collection="array" item="id" index="index" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </where>
+    </delete>
+</mapper>
