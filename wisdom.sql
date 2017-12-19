@@ -1,7 +1,34 @@
 CREATE DATABASE IF NOT EXISTS wisdom DEFAULT CHARSET utf8 COLLATE utf8_general_ci;
 
+CREATE TABLE IF NOT EXISTS merchant_user (
+	id BIGINT NOT NULL AUTO_INCREMENT,
+	user_id VARCHAR (20) NOT NULL COMMENT '商户ID',
+	user_name VARCHAR (20) NOT NULL COMMENT '用户名',
+	pass_word VARCHAR (20) NOT NULL COMMENT '密码',
+	email VARCHAR (50) NOT NULL COMMENT '邮箱',
+	telephon VARCHAR(50)
+	PRIMARY KEY (id),
+	UNIQUE (user_name),
+	INDEX (user_id)
+) COMMENT '商户用户表';
 
-DROP TABLE merchant;
+CREATE TABLE merchandis (
+	id BIGINT NOT NULL AUTO_INCREMENT,
+	merchandis_id VARCHAR(40) NOT NULL COMMENT '商品id',
+	merchandis_name VARCHAR(20) NOT NULL COMMENT '商品名称',
+	price DECIMAL (12, 2) NOT NULL COMMENT '商品价格',
+	category VARCHAR(20) NOT NULL COMMENT '商品类别',
+	pnum INT(11) NOT NULL COMMENT '商品数量',
+	img_wisdomurl VARCHAR(100) NOT NULL COMMENT '商品图片',
+	description VARCHAR(255) NOT NULL COMMENT '商品描述',
+	del_flag TINYINT NOT NULL DEFAULT 0 COMMENT '是否删除',
+	user_id VARCHAR(20) NOT NULL,
+	PRIMARY KEY (id),
+	UNIQUE INDEX (merchandis_id),
+	FOREIGN KEY (user_id) REFERENCES merchant_user(user_id)
+)COMMENT '商品表';
+
+/*DROP TABLE merchant;
 
 CREATE TABLE IF NOT EXISTS merchant (
 	id BIGINT NOT NULL AUTO_INCREMENT,
@@ -62,4 +89,4 @@ CREATE TABLE IF NOT EXISTS merchant_user (
 	PRIMARY KEY (id),
 	UNIQUE (user_name),
 	INDEX (merc_id)
-) COMMENT '商户用户表';
+) COMMENT '商户用户表';*/

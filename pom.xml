@@ -12,8 +12,6 @@
         <module>modules</module>
     </modules>
     <packaging>pom</packaging>
-
-
     <build>
         <defaultGoal>install</defaultGoal>
         <plugins>
@@ -41,11 +39,6 @@
                         <contextPath>/</contextPath>
                     </webApp>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.tomcat.maven</groupId>
-                <artifactId>tomcat7-maven-plugin</artifactId>
-                <version>2.1</version>
             </plugin>
             <!-- clean-up previous hibernate-search indexed from integration tests, as there could be a lock -->
             <plugin>
