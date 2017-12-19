@@ -6,7 +6,6 @@ CREATE TABLE IF NOT EXISTS merchant_user (
 	user_name VARCHAR (20) NOT NULL COMMENT '用户名',
 	pass_word VARCHAR (20) NOT NULL COMMENT '密码',
 	email VARCHAR (50) NOT NULL COMMENT '邮箱',
-	telephon VARCHAR(50)
 	PRIMARY KEY (id),
 	UNIQUE (user_name),
 	INDEX (user_id)
